@@ -1,0 +1,28 @@
+name: "Terraform Promotion Dev -> Test -> Prod"
+
+on: workflow_dispatch
+
+jobs:
+  deploy_dev:
+    uses: ./.github/workflows/plan_and_apply_template.yaml
+    with:
+      environments: dev
+    secrets:
+      inherit
+
+  deploy_test:
+    needs: deploy_dev
+    uses: ./.github/workflows/plan_and_apply_template.yaml
+    with:
+      environments: test
+    secrets:
+      inherit
+
+  deploy_prd:
+    needs: deploy_prd
+    uses: ./.github/workflows/plan_and_apply_template.yaml
+    with:
+      environments: prd
+    secrets:
+      inherit
+
