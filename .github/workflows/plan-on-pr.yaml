@@ -87,6 +87,6 @@ jobs:
               body: output
             })
 
-      - name: Unit Test Status (Terraform Plan)
+      - name: Terraform Plan Status
         if: steps.plan.outcome == 'failure'
         run: exit 1

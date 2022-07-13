@@ -1,0 +1,85 @@
+name: Terraform Plan and Apply Workflow
+
+on:
+  workflow_call:
+    inputs:
+      environments:
+        required: true
+        type: string
+        
+jobs:
+  plan:
+    name: "Terraform Plan ${{ inputs.environments }}"
+    runs-on: ubuntu-latest
+    env:
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+    defaults:
+      run:
+        working-directory: terraform/environment/${{ inputs.environments }}
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Azure Login
+        uses: Azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.2.4
+
+      - name: Terraform Init
+        id: init
+        run: terraform init
+      
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -var-file=${{ inputs.environments }}.tfvars
+
+  apply:
+      name: "Terraform Apply ${{ inputs.environments }}"
+      runs-on: ubuntu-latest
+      environment: ${{ inputs.environments }}
+      needs: plan
+      env:
+        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+      defaults:
+        run:
+          working-directory: terraform/environment/dev
+
+      steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Azure Login
+        uses: Azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.2.4
+
+      - name: Terraform Init
+        id: init
+        run: terraform init
+
+      - name: Terraform Apply
+        id: apply
+        run: terraform apply -var-file=${{ inputs.environments }}.tfvars -auto-approve
+
+  
