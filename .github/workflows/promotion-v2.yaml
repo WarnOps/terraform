@@ -1,0 +1,11 @@
+name: "Terraform Promotion v2 Dev -> Test -> Prod"
+
+on: workflow_dispatch
+
+jobs:
+  reusable_workflow_job:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./.github/workflows/paln_and_apply_template.yaml
+        with:
+          environments: dev
