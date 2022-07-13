@@ -3,12 +3,6 @@ name: "Terraform Promotion v2 Dev -> Test -> Prod"
 on: workflow_dispatch
 
 jobs:
-  reusable_workflow_job:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-
   deploy:
     uses: ./.github/workflows/plan_and_apply_template.yaml
     with:
