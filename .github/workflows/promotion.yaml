@@ -4,7 +4,7 @@ on: workflow_dispatch
 
 jobs:
   dev_plan:
-    name: "Terraform Dev Plan"
+    name: "Terraform DEV Plan"
     runs-on: ubuntu-latest
     env:
       ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
@@ -38,7 +38,7 @@ jobs:
         run: terraform plan -var-file=dev.tfvars
 
   dev_apply:
-      name: "Terraform Dev Apply"
+      name: "Terraform DEV Apply"
       runs-on: ubuntu-latest
       environment: dev
       needs: dev_plan
@@ -76,3 +76,153 @@ jobs:
       - name: Terraform Apply
         id: apply
         run: terraform apply -var-file=dev.tfvars -auto-approve
+
+  test_plan:
+    name: "Terraform TEST Plan"
+    runs-on: ubuntu-latest
+    needs: dev_apply
+    env:
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+    defaults:
+      run:
+        working-directory: terraform/environment/test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Azure Login
+        uses: Azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.2.4
+
+      - name: Terraform Init
+        id: init
+        run: terraform init
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -var-file=test.tfvars
+
+  test_apply:
+      name: "Terraform TEST Apply"
+      runs-on: ubuntu-latest
+      environment: test
+      needs: test_plan
+      env:
+        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+      defaults:
+        run:
+          working-directory: terraform/environment/test
+
+      steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Azure Login
+        uses: Azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.2.4
+
+      - name: Terraform Init
+        id: init
+        run: terraform init
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -var-file=test.tfvars
+
+      - name: Terraform Apply
+        id: apply
+        run: terraform apply -var-file=test.tfvars -auto-approve
+
+  prd_plan:
+      name: "Terraform PRD Plan"
+      runs-on: ubuntu-latest
+      needs: test_apply
+      env:
+        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+      defaults:
+        run:
+          working-directory: terraform/environment/prd
+
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v2
+
+        - name: Azure Login
+          uses: Azure/login@v1
+          with:
+            creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+        - name: Setup Terraform
+          uses: hashicorp/setup-terraform@v1
+          with:
+            terraform_version: 1.2.4
+
+        - name: Terraform Init
+          id: init
+          run: terraform init
+
+        - name: Terraform Plan
+          id: plan
+          run: terraform plan -var-file=prd.tfvars
+
+  prd_apply:
+      name: "Terraform PRD Apply"
+      runs-on: ubuntu-latest
+      environment: prd
+      needs: prd_plan
+      env:
+        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+      defaults:
+        run:
+          working-directory: terraform/environment/prd
+
+      steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Azure Login
+        uses: Azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.2.4
+
+      - name: Terraform Init
+        id: init
+        run: terraform init
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -var-file=prd.tfvars
+
+      - name: Terraform Apply
+        id: apply
+        run: terraform apply -var-file=prd.tfvars -auto-approve
