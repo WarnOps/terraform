@@ -1,4 +1,4 @@
-name: "Terraform Validatation"
+name: "Terraform PR Validatation"
 
 on:
   push:
@@ -21,7 +21,7 @@ jobs:
         environments:
           - dev
           - test
-          - prod
+          - prd
 
     steps:
       - name: Checkout
