@@ -19,7 +19,7 @@ jobs:
       inherit
 
   deploy_prd:
-    needs: deploy_prd
+    needs: deploy_test
     uses: ./.github/workflows/plan_and_apply_template.yaml
     with:
       environments: prd
