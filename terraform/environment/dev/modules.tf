@@ -6,7 +6,7 @@ module "storage_account" {
   storage_account_name = "${var.environment}${var.location}stg"
 }
 
-module "storage_account" {
+module "storage_account2" {
   source               = "../../../modules/storage"
   location             = var.location
   environment          = var.environment
