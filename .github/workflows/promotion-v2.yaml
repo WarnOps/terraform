@@ -9,7 +9,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
-    - name: Deploy
-      uses: ./.github/workflows/paln_and_apply_template.yaml
-      with:
-        environments: dev
+  deploy:
+    uses: ./.github/workflows/paln_and_apply_template.yaml
+    with:
+      environments: dev
