@@ -6,6 +6,10 @@ jobs:
   reusable_workflow_job:
     runs-on: ubuntu-latest
     steps:
-      - uses: ./.github/workflows/paln_and_apply_template.yaml
-        with:
-          environments: dev
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Deploy
+      uses: ./.github/workflows/paln_and_apply_template.yaml
+      with:
+        environments: dev
