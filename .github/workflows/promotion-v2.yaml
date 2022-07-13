@@ -13,3 +13,5 @@ jobs:
     uses: ./.github/workflows/plan_and_apply_template.yaml
     with:
       environments: dev
+    secrets:
+      inherit
