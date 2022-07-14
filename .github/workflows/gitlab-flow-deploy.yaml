@@ -1,4 +1,4 @@
-name: "GitLab Flow"
+name: "GitLab Flow Deploy"
 
 on:
   push:
@@ -26,7 +26,7 @@ jobs:
         with:
           github-token: ${{ secrets.PAT }}
           script: |
-            const output = `#### Running Terraform Apply: Environment 💻\`${{ GITHUB_REF }}\`
+            const output = `#### Running Terraform Apply: Environment 💻\`${{ github.ref }}\`
             #### Results will display here momentarily...  \`
 
             *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
@@ -51,22 +51,22 @@ jobs:
       - name: Initialize Terraform
         id: init
         run: |
-          cd terraform/environment/${{ GITHUB_REF }}
+          cd terraform/environment/${{ github.ref }}
           terraform init -input=false
       
       - name: Plan Terraform
         id: plan
         continue-on-error: true
         run: |
-          cd terraform/environment/${{ GITHUB_REF }}
-          terraform plan -var-file=${{ GITHUB_REF }}.tfvars -input=false -no-color
+          cd terraform/environment/${{ github.ref }}
+          terraform plan -var-file=${{ github.ref }}.tfvars -input=false -no-color
 
       - name: Terraform Apply
         if: steps.plan.outcome == 'success'
         id: apply
         run: |
-          cd terraform/environment/${{ GITHUB_REF }}
-          terraform apply -var-file=${{ GITHUB_REF }}.tfvars -auto-approve      
+          cd terraform/environment/${{ github.ref }}
+          terraform apply -var-file=${{ github.ref }}.tfvars -auto-approve      
 
       - name: Post Plan and Apply to Github PR
         if: steps.plan.outcome == 'success' && steps.apply.outcome == 'success'
@@ -76,7 +76,7 @@ jobs:
         with:
           github-token: ${{ secrets.PAT }}
           script: |
-            const output = `#### Applying Environment 💻\`${{ GITHUB_REF }}\`
+            const output = `#### Applying Environment 💻\`${{ github.ref }}\`
             
             ```diff
             $${process.env.PLAN}
@@ -100,7 +100,7 @@ jobs:
         with:
           github-token: ${{ secrets.PAT }}
           script: |
-            const output = `#### Plan Failed for Environment 💻\`${{ GITHUB_REF }}\`
+            const output = `#### Plan Failed for Environment 💻\`${{ github.ref }}\`
             
             ```
             ${{ steps.plan.outputs.stderr }}
@@ -119,7 +119,7 @@ jobs:
         with:
           github-token: ${{ secrets.PAT }}
           script: |
-            const output = `#### Apply Failed for Environment 💻\`${{ GITHUB_REF }}\`
+            const output = `#### Apply Failed for Environment 💻\`${{ github.ref }}\`
             
             ```
             ${{ steps.apply.outputs.stderr }}
