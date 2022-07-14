@@ -1,7 +1,9 @@
 name: "GitLab Flow Deploy"
 
 on:
-  push:
+  pull_request:
+    types:
+      - closed
     branches:
       - dev
       - test
@@ -10,6 +12,7 @@ on:
 jobs:
   terraform:
     name: "Terraform"
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     env:
       ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
@@ -32,7 +35,7 @@ jobs:
             *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
 
             github.issues.createComment({
-              issue_number: context.issue.number,
+              issue_number: ${{ github.event.number }},
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: output
@@ -86,7 +89,7 @@ jobs:
             ${{ steps.apply.outputs.stdout }}
             ```          
             github.issues.createComment({
-              issue_number: context.issue.number,
+              issue_number: ${{ github.event.number }},
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: output
@@ -107,7 +110,7 @@ jobs:
             ```
                    
             github.issues.createComment({
-              issue_number: context.issue.number,
+              issue_number: ${{ github.event.number }},
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: output
@@ -126,7 +129,7 @@ jobs:
             ``` 
 
             github.issues.createComment({
-              issue_number: context.issue.number,
+              issue_number: ${{ github.event.number }},
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: output
