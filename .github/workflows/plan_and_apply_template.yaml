@@ -58,7 +58,7 @@ jobs:
         ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
       defaults:
         run:
-          working-directory: terraform/environment/dev
+          working-directory: terraform/environment/${{ inputs.environments }}
 
       steps:
       - name: Checkout
