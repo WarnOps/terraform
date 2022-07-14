@@ -29,8 +29,8 @@ jobs:
         with:
           github-token: ${{ secrets.PAT }}
           script: |
-            const output = `#### Running Terraform Apply: Environment 💻\`${{ github.ref }}\`
-            #### Results will display here momentarily...  \`
+            const output = `#### Running Terraform Apply: Environment 💻 \`${{ github.ref }}\`
+            #### Results will display here momentarily...  \
 
             *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
 
@@ -71,7 +71,7 @@ jobs:
           cd terraform/environment/${{ github.ref }}
           terraform apply -var-file=${{ github.ref }}.tfvars -auto-approve      
 
-      - name: Post Plan and Apply to Github PR
+      - name: Post Apply to Github PR
         if: steps.plan.outcome == 'success' && steps.apply.outcome == 'success'
         uses: actions/github-script@0.9.0
         env:
@@ -79,15 +79,16 @@ jobs:
         with:
           github-token: ${{ secrets.PAT }}
           script: |
-            const output = `#### Applying Environment 💻\`${{ github.ref }}\`
+            const output = `#### Applying Environment 💻 \`${{ github.ref }}\`
             
-            ```diff
-            ${{ steps.plan.outputs.stdout }}
-            ```
+            <details><summary>Show Apply</summary>
 
-            ```
-            ${{ steps.apply.outputs.stdout }}
-            ```          
+            \`\`\`${process.env.PLAN}\`\`\`
+
+            </details>
+
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
             github.issues.createComment({
               issue_number: ${{ github.event.number }},
               owner: context.repo.owner,
@@ -103,7 +104,7 @@ jobs:
         with:
           github-token: ${{ secrets.PAT }}
           script: |
-            const output = `#### Plan Failed for Environment 💻\`${{ github.ref }}\`
+            const output = `#### Plan Failed for Environment 💻 \`${{ github.ref }}\`
             
             ```
             ${{ steps.plan.outputs.stderr }}
@@ -122,7 +123,7 @@ jobs:
         with:
           github-token: ${{ secrets.PAT }}
           script: |
-            const output = `#### Apply Failed for Environment 💻\`${{ github.ref }}\`
+            const output = `#### Apply Failed for Environment 💻 \`${{ github.ref }}\`
             
             ```
             ${{ steps.apply.outputs.stderr }}
