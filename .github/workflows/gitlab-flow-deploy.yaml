@@ -1,7 +1,9 @@
-name: "GitLab Flow"
+name: "GitLab Flow Deploy"
 
 on:
-  push:
+  pull_request:
+    types:
+      - closed
     branches:
       - dev
       - test
@@ -10,6 +12,7 @@ on:
 jobs:
   terraform:
     name: "Terraform"
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     env:
       ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
@@ -26,13 +29,13 @@ jobs:
         with:
           github-token: ${{ secrets.PAT }}
           script: |
-            const output = `#### Running Terraform Apply: Environment 💻\`${{ GITHUB_REF }}\`
-            #### Results will display here momentarily...  \`
+            const output = `#### Running Terraform Apply: Environment 💻 \`${{ github.ref }}\`
+            #### Results will display here momentarily...  \
 
             *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
 
             github.issues.createComment({
-              issue_number: context.issue.number,
+              issue_number: ${{ github.event.number }},
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: output
@@ -51,24 +54,24 @@ jobs:
       - name: Initialize Terraform
         id: init
         run: |
-          cd terraform/environment/${{ GITHUB_REF }}
+          cd terraform/environment/${{ github.ref }}
           terraform init -input=false
       
       - name: Plan Terraform
         id: plan
         continue-on-error: true
         run: |
-          cd terraform/environment/${{ GITHUB_REF }}
-          terraform plan -var-file=${{ GITHUB_REF }}.tfvars -input=false -no-color
+          cd terraform/environment/${{ github.ref }}
+          terraform plan -var-file=${{ github.ref }}.tfvars -input=false -no-color
 
       - name: Terraform Apply
         if: steps.plan.outcome == 'success'
         id: apply
         run: |
-          cd terraform/environment/${{ GITHUB_REF }}
-          terraform apply -var-file=${{ GITHUB_REF }}.tfvars -auto-approve      
+          cd terraform/environment/${{ github.ref }}
+          terraform apply -var-file=${{ github.ref }}.tfvars -auto-approve      
 
-      - name: Post Plan and Apply to Github PR
+      - name: Post Apply to Github PR
         if: steps.plan.outcome == 'success' && steps.apply.outcome == 'success'
         uses: actions/github-script@0.9.0
         env:
@@ -76,17 +79,18 @@ jobs:
         with:
           github-token: ${{ secrets.PAT }}
           script: |
-            const output = `#### Applying Environment 💻\`${{ GITHUB_REF }}\`
+            const output = `#### Applying Environment 💻 \`${{ github.ref }}\`
             
-            ```diff
-            $${process.env.PLAN}
-            ```
+            <details><summary>Show Apply</summary>
 
-            ```
-            ${{ steps.apply.outputs.stdout }}
-            ```          
+            \`\`\`${process.env.PLAN}\`\`\`
+
+            </details>
+
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
             github.issues.createComment({
-              issue_number: context.issue.number,
+              issue_number: ${{ github.event.number }},
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: output
@@ -100,14 +104,14 @@ jobs:
         with:
           github-token: ${{ secrets.PAT }}
           script: |
-            const output = `#### Plan Failed for Environment 💻\`${{ GITHUB_REF }}\`
+            const output = `#### Plan Failed for Environment 💻 \`${{ github.ref }}\`
             
             ```
             ${{ steps.plan.outputs.stderr }}
             ```
                    
             github.issues.createComment({
-              issue_number: context.issue.number,
+              issue_number: ${{ github.event.number }},
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: output
@@ -119,14 +123,14 @@ jobs:
         with:
           github-token: ${{ secrets.PAT }}
           script: |
-            const output = `#### Apply Failed for Environment 💻\`${{ GITHUB_REF }}\`
+            const output = `#### Apply Failed for Environment 💻 \`${{ github.ref }}\`
             
             ```
             ${{ steps.apply.outputs.stderr }}
             ``` 
 
             github.issues.createComment({
-              issue_number: context.issue.number,
+              issue_number: ${{ github.event.number }},
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: output
