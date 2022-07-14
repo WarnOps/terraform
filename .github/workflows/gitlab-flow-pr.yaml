@@ -46,7 +46,6 @@ jobs:
       
       - name: Plan Terraform
         id: plan
-        if: github.event_name == 'pull_request'
         continue-on-error: true
         run: |
           cd terraform/environment/${{ github.base_ref }}
@@ -54,7 +53,6 @@ jobs:
 
       - name: Post Plan to Github PR 
         uses: actions/github-script@0.9.0
-        if: github.event_name == 'pull_request'
         env:
           PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
         with:
