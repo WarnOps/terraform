@@ -1,4 +1,4 @@
-name: "GitLab Flow"
+name: "GitLab Flow Deploy"
 
 on:
   push:

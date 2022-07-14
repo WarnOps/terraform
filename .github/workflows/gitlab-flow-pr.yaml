@@ -1,4 +1,4 @@
-name: "GitLab Flow"
+name: "GitLab Flow PR"
 
 on:
   pull_request:
@@ -16,13 +16,6 @@ jobs:
       ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
       ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
       ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-    strategy:
-      fail-fast: false
-      matrix:
-        environments:
-          - dev
-          - test
-          - prd
 
     steps:
       - name: Checkout
