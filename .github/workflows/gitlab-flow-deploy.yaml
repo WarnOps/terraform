@@ -82,7 +82,7 @@ jobs:
             const output = `#### Applying Environment 💻\`${{ github.ref }}\`
             
             ```diff
-            $${process.env.PLAN}
+            ${{ steps.plan.outputs.stdout }}
             ```
 
             ```
