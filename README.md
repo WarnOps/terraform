@@ -29,6 +29,8 @@ Azure Storage Account
 
 #### Automation Status
 
+pr test
+
 [![GitLab Flow PR](https://github.com/WarnOps/terraform/actions/workflows/gitlab-flow-pr.yaml/badge.svg)](https://github.com/WarnOps/terraform/actions/workflows/gitlab-flow-pr.yaml)
 
 [![GitLab Flow Deploy](https://github.com/WarnOps/terraform/actions/workflows/gitlab-flow-deploy.yaml/badge.svg)](https://github.com/WarnOps/terraform/actions/workflows/gitlab-flow-deploy.yaml)
